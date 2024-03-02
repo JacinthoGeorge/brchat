@@ -1,4 +1,4 @@
-#BRChat com Socket.IO
+# BRChat com Socket.IO
 
 Este aplicativo de chat demonstra como usar o Socket.IO para comunicação em tempo real entre clientes em um navegador web.
 
