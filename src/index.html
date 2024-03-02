@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Lato", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #form {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 0.25rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            height: 3rem;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        #input {
+            border: none;
+            padding: 0 1rem;
+            flex-grow: 1;
+            border-radius: 2rem;
+            margin: 0.25rem;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form>button {
+            background: #333;
+            border: none;
+            padding: 0 1rem;
+            margin: 0.25rem;
+            border-radius: 3px;
+            outline: none;
+            color: #fff;
+        }
+
+        .msgBody {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        #messages {
+            width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            margin: 0;
+            padding: 0 5px;
+        }
+
+        #messages>li {
+            list-style: none;
+            width: fit-content;
+            position: relative;
+            min-width: 300px;
+            max-width: 500px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #3333331a;
+            border-radius: 10px 0px 10px 10px;
+            margin-bottom: 5px;
+        }
+
+        #messages>li>span {
+            font-weight: 900;
+            font-size: 0.7rem;
+            color: #333;
+        }
+
+        #messages>li>span:last-child {
+            font-weight: 400;
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            font-size: 0.5rem;
+            color: #333;
+        }
+
+        #messages>li>p {
+            margin: 0;
+            text-align: justify;
+            margin-bottom: 12px;
+        }
+
+        .myMsg {
+            align-self: self-start;
+            border-radius: 0px 10px 10px 10px !important;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title {
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 class="title">BR Chat</h1>
+    </div>
+    <div class="msgBody">
+        <ul id="messages"></ul>
+    </div>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Enviar</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const color = Math.floor(Math.random() * 16777215).toString(16);
+        let user = prompt("Escolha seu nome de usuário");
+        user += "@" + color;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', { message: input.value, user: user, color: color });
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', (msg) => {
+            const item = document.createElement('li');
+            const msgUser = document.createElement('span');
+            const msgContent = document.createElement('p');
+            const msgTime = document.createElement('span');
+            msgUser.textContent = msg.user;
+            msgContent.textContent = msg.msg;
+            msgTime.textContent = new Date().toLocaleTimeString();
+            if (msg.user == user) {
+                item.classList.add('myMsg');
+            }
+            let r = parseInt(msg.color.slice(0, 2), 16),
+                g = parseInt(msg.color.slice(2, 4), 16),
+                b = parseInt(msg.color.slice(4, 6), 16);
+            // Defina a opacidade
+            let opacity = 0.2;
+            item.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            messages.appendChild(item);
+            item.appendChild(msgUser);
+            item.appendChild(msgContent)
+            item.appendChild(msgTime)
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+
+</html>
